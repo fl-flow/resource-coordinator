@@ -7,51 +7,51 @@ import (
 )
 
 
-type ResourceType struct {
+type NodeResourceType struct {
   Max               uint          `json:"max"`  // TODO: []uint,  {height1, height2 ... low1, low2}
   Min               uint          `json:"min"`  // TODO: []uint,  {height1, height2 ... low1, low2}
   Allocated         uint          `json:"allocated"`
-  ResouceRwMutex    *sync.RWMutex `json:"-"`
+  NodeRwMutex       *sync.RWMutex `json:"-"`
 }
 
 
-type NodeType struct {
-  ResourceMap       map[string](*ResourceType )  `json:"resource_map"`// resouceName -> ResourceType
-  NodeRwMutex       *sync.RWMutex             `json:"-"`
+type ResourceType struct {
+  NodeMap         map[string](*NodeResourceType)  `json:"node_map"`// resouceName -> NodeResourceType
+  ResouceRwMutex  *sync.RWMutex                   `json:"-"`
 }
 
 
-type NodeResourceMapType map[string](*NodeType)
+type NodeResourceMapType map[string](*ResourceType)
 
 
-var NodeResourceMap NodeResourceMapType // node -> NodeType
-var NodeResourceMapRwMutex *sync.RWMutex
+var ResourceNodeMap NodeResourceMapType // node -> ResourceType
+var ResourceNodeMapRwMutex *sync.RWMutex
 
 
 func init() {
-  NodeResourceMap = make(NodeResourceMapType)
-  NodeResourceMapRwMutex = new(sync.RWMutex)
+  ResourceNodeMap = make(NodeResourceMapType)
+  ResourceNodeMapRwMutex = new(sync.RWMutex)
 }
 
 
-func (m NodeResourceMapType) GetNode(node string) (*NodeType, *error.Error) {
-  n, ok := NodeResourceMap[node]
+func (m NodeResourceMapType) GetResource(resource string) (*ResourceType, *error.Error) {
+  n, ok := ResourceNodeMap[resource]
   if !ok {
     return nil, &error.Error{
       Code: 11000010,
-      Hits: node,
+      Hits: resource,
     }
   }
   return n, nil
 }
 
 
-func (n NodeType) GetResource(resouceName string) (*ResourceType, *error.Error) {
-  resource, rok := n.ResourceMap[resouceName]
+func (r ResourceType) GetNodeResource(node string) (*NodeResourceType, *error.Error) {
+  resource, rok := r.NodeMap[node]
   if !rok {
     return nil, &error.Error{
       Code: 11000020,
-      Hits: resouceName,
+      Hits: node,
     }
   }
   return resource, nil

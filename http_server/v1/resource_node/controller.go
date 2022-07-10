@@ -1,4 +1,4 @@
-package resource
+package resourcenode
 
 import (
   "fmt"
@@ -8,17 +8,17 @@ import (
 )
 
 
-func ResourceChangeController(f ResourceChangeSerializer) (*resourcepool.ResourceType, *error.Error) {
-  n, e := resourcepool.NodeResourceMap.GetNode(f.Node)
+func ResourceNodeChangeController(f ResourceNodeChangeSerializer) (*resourcepool.NodeResourceType, *error.Error) {
+  r, e := resourcepool.ResourceNodeMap.GetResource(f.ResourceName)
   if e != nil {
     return nil, e
   }
-  resource , e := n.GetResource(f.ResourceName)
+  resource , e := r.GetNodeResource(f.Node)
   if e != nil {
     return nil, e
   }
-  resource.ResouceRwMutex.Lock()
-  defer resource.ResouceRwMutex.Unlock()
+  resource.NodeRwMutex.Lock()
+  defer resource.NodeRwMutex.Unlock()
   var newAllocatedValue uint
   fmt.Println(resource.Allocated, "resource.Allocatedresource.Allocated")
   if f.Type {
@@ -38,8 +38,8 @@ func ResourceChangeController(f ResourceChangeSerializer) (*resourcepool.Resourc
       }
     }
   }
-  fmt.Println(resource, "resourceresource", resourcepool.NodeResourceMap)
+  fmt.Println(resource, "resourceresource", resourcepool.ResourceNodeMap)
   (*resource).Allocated = newAllocatedValue
-  fmt.Println(resource, "resourceresource", resourcepool.NodeResourceMap)
+  fmt.Println(resource, "resourceresource", resourcepool.ResourceNodeMap)
   return resource, nil
 }
