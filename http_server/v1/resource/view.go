@@ -4,8 +4,10 @@ import (
   "sync"
   "github.com/gin-gonic/gin"
 
+  "github.com/fl-flow/resource-coordinator/common/error"
   "github.com/fl-flow/resource-coordinator/resource/pool"
   "github.com/fl-flow/resource-coordinator/http_server/http/mixin"
+  "github.com/fl-flow/resource-coordinator/http_server/http/response"
 )
 
 
@@ -24,5 +26,22 @@ func ResourceRegisterView(context *gin.Context) {
     }
   }
   mixin.CommonResponse(context, resourcepool.ResourceNodeMap[f.ResourceName], nil)
-  return
+}
+
+
+func ResourceDetailView(context *gin.Context) {
+  resourceName := context.Param("resource_name")
+  if resourceName == "" {
+    response.R(context, 100, "query resource_name is required", "query resource_name is required")
+    return
+  }
+  d, ok1 := resourcepool.ResourceNodeMap[resourceName]
+  if !ok1 {
+    mixin.CommonResponse(context, "error", &error.Error{
+      Code: 11000010,
+      Hits: resourceName,
+    })
+    return
+  }
+  mixin.CommonResponse(context, d, nil)
 }

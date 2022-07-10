@@ -7,4 +7,5 @@ import (
 
 func RegisterRouter(Router *gin.RouterGroup)  {
   Router.POST("", ResourceRegisterView)
+	Router.GET("/:resource_name/", ResourceDetailView)
 }
