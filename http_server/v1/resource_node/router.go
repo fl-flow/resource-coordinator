@@ -7,5 +7,6 @@ import (
 
 func RegisterRouter(Router *gin.RouterGroup)  {
   Router.POST("", ResourceNodeRegisterView)
-	Router.PATCH("", ResourceNodeChangeView)
+	Router.PATCH("/up/", ResourceNodeUpView)
+	Router.PATCH("/down/", ResourceNodeDownView)
 }

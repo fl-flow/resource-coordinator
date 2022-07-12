@@ -75,9 +75,9 @@ func (r ResourceType) NewResourceNode (
 
 
 
-func (n ResourceNodeType) ResourceNodeChange(diff uint64, t bool) bool {
+func (n ResourceNodeType) ResourceNodeUp(diff uint64, uid string) bool {
   url := fmt.Sprintf(
-    "%v://%v:%v/api/v1/resource-node/",
+    "%v://%v:%v/api/v1/resource-node/up/",
     n.Resource.Client.Schema,
     n.Resource.Client.IP,
     n.Resource.Client.Port,
@@ -87,11 +87,11 @@ func (n ResourceNodeType) ResourceNodeChange(diff uint64, t bool) bool {
     url,
     []byte(
       fmt.Sprintf(
-        `{"resource_name":"%v","node":"%v","value":%v,"type":%v}`,
+        `{"resource_name":"%v","node":"%v","value":%v,"uid":"%v"}`,
         n.Resource.ResourceName,
         n.Node,
         diff,
-        t,
+        uid,
       ),
     ),
   )
@@ -102,11 +102,27 @@ func (n ResourceNodeType) ResourceNodeChange(diff uint64, t bool) bool {
 }
 
 
-func (n ResourceNodeType) ResourceNodeUp(diff uint64) bool {
-  return n.ResourceNodeChange(diff, true)
-}
-
-
-func (n ResourceNodeType) ResourceNodeDown(diff uint64) bool {
-  return n.ResourceNodeChange(diff, false)
+func (n ResourceNodeType) ResourceNodeDown(uid string) bool {
+  url := fmt.Sprintf(
+    "%v://%v:%v/api/v1/resource-node/down/",
+    n.Resource.Client.Schema,
+    n.Resource.Client.IP,
+    n.Resource.Client.Port,
+  )
+  _, e := fetch(
+    "PATCH",
+    url,
+    []byte(
+      fmt.Sprintf(
+        `{"resource_name":"%v","node":"%v","uid":"%v"}`,
+        n.Resource.ResourceName,
+        n.Node,
+        uid,
+      ),
+    ),
+  )
+  if e != nil {
+    return false
+  }
+  return true
 }

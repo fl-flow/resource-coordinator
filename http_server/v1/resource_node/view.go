@@ -1,6 +1,7 @@
 package resourcenode
 
 import (
+  "fmt"
   "sync"
   "github.com/gin-gonic/gin"
 
@@ -35,6 +36,7 @@ func ResourceNodeRegisterView(context *gin.Context) {
       Min: f.Min,
       Allocated: f.Init,
       NodeRwMutex: new(sync.RWMutex),
+      Stream: &(map[string]uint{}),
     }
   }
   mixin.CommonResponse(context, r.NodeMap[f.Node], nil)
@@ -42,11 +44,23 @@ func ResourceNodeRegisterView(context *gin.Context) {
 }
 
 
-func ResourceNodeChangeView(context *gin.Context) {
-  var f ResourceNodeChangeSerializer
+func ResourceNodeUpView(context *gin.Context) {
+  var f ResourceNodeUpSerializer
   if ok := mixin.CheckJSON(context, &f); !ok {
     return
   }
-  resource, e := ResourceNodeChangeController(f)
+  resource, e := ResourceNodeUpController(f)
+  fmt.Println(resource.Allocated, resource.Stream)
+  mixin.CommonResponse(context, resource, e)
+}
+
+
+func ResourceNodeDownView(context *gin.Context) {
+  var f ResourceNodeDownSerializer
+  if ok := mixin.CheckJSON(context, &f); !ok {
+    return
+  }
+  resource, e := ResourceNodeDownController(f)
+  fmt.Println(resource.Allocated, resource.Stream)
   mixin.CommonResponse(context, resource, e)
 }

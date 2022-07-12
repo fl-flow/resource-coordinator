@@ -8,10 +8,11 @@ import (
 
 
 type NodeResourceType struct {
-  Max               uint          `json:"max"`  // TODO: []uint,  {height1, height2 ... low1, low2}
-  Min               uint          `json:"min"`  // TODO: []uint,  {height1, height2 ... low1, low2}
-  Allocated         uint          `json:"allocated"`
-  NodeRwMutex       *sync.RWMutex `json:"-"`
+  Max               uint                                `json:"max"`  // TODO: []uint,  {height1, height2 ... low1, low2}
+  Min               uint                                `json:"min"`  // TODO: []uint,  {height1, height2 ... low1, low2}
+  Allocated         uint                                `json:"allocated"`
+  Stream            *(map[string]uint)                   `json:"stream"`
+  NodeRwMutex       *sync.RWMutex                       `json:"-"`
 }
 
 

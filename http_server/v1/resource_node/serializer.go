@@ -10,14 +10,16 @@ type ResourceNodeRegisterSerializer struct {
 }
 
 
-type ResourceNodeChangeSerializer struct {
+type ResourceNodeUpSerializer struct {
   ResourceName    string    `json:"resource_name" binding:"required"`
   Value           uint      `json:"value" binding:"required"`
-  Type            bool      `json:"type"`
+  Uid             string    `json:"uid" binding:"required"`
   Node            string    `json:"node" binding:"required"`
 }
 
 
-// type ResourceListQuery struct {
-//   Node            string    `json:"node" binding:"required"`
-// }
+type ResourceNodeDownSerializer struct {
+  ResourceName    string    `json:"resource_name" binding:"required"`
+  Uid             string    `json:"uid" binding:"required"`
+  Node            string    `json:"node" binding:"required"`
+}
