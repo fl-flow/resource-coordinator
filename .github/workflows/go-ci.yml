@@ -33,8 +33,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: download dependencies
+        run: go get
+
       - name: Run Tests
         run: go test ./...
+
+      
 
 #       - name: Upload coverage to Codecov
 #         uses: codecov/codecov-action@v2
