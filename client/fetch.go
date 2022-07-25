@@ -13,7 +13,7 @@ import (
 )
 
 
-func fetch(method string, url string, jsonData []byte) ([]byte, *error.Error) {
+func fetch(method string, url string, jsonData []byte) (httpresponse.Ret, *error.Error) {
   request, err := http.NewRequest(method, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Fatalf("new request to '%s' failed: %v\n", url, err)
@@ -26,23 +26,23 @@ func fetch(method string, url string, jsonData []byte) ([]byte, *error.Error) {
 		log.Fatalf("request for '%s' failed: %v\n", url, err)
 	}
   defer response.Body.Close()
+	var ret httpresponse.Ret
   body, _ := ioutil.ReadAll(response.Body)
   if response.StatusCode != 200 {
     log.Printf("request for '%s' status : %v\n body: %v\n", url, response.StatusCode, string(body))
-    return body, &error.Error{
+    return ret, &error.Error{
       Code: 80010,
       Hits: string(body),
     }
   }
-  var ret httpresponse.Ret
   err_ := json.Unmarshal(body, &ret)
   if err_ != nil {
     log.Fatalf("data json loads error:  %v\n", err_)
   }
   if ret.Code != 0 {
-    return body, &error.Error{
+    return ret, &error.Error{
       Code: ret.Code,
     }
   }
-  return body, nil
+  return ret, nil
 }

@@ -126,3 +126,23 @@ func (n ResourceNodeType) ResourceNodeDown(uid string) bool {
   }
   return true
 }
+
+
+func (r ResourceType) Alloc (value uint) (string, string, bool) {
+  url := fmt.Sprintf(
+    "%v://%v:%v/api/v1/resource/alloc/",
+    r.Client.Schema,
+    r.Client.IP,
+    r.Client.Port,
+  )
+  ret, e := fetch(
+    "POST",
+    url,
+    []byte(fmt.Sprintf(`{"resource_name":"%v", "value": %v}`, r.ResourceName, value)),
+  )
+  if e != nil {
+    return "", "", false
+  }
+  data := ret.Data.(map[string]interface{})
+  return data["node"].(string), data["uid"].(string), true
+}
