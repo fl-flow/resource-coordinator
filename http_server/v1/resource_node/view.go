@@ -1,7 +1,6 @@
 package resourcenode
 
 import (
-  "fmt"
   "sync"
   "github.com/gin-gonic/gin"
 
@@ -50,7 +49,6 @@ func ResourceNodeUpView(context *gin.Context) {
     return
   }
   resource, e := ResourceNodeUpController(f)
-  fmt.Println(resource.Allocated, resource.Stream)
   mixin.CommonResponse(context, resource, e)
 }
 
@@ -61,6 +59,5 @@ func ResourceNodeDownView(context *gin.Context) {
     return
   }
   resource, e := ResourceNodeDownController(f)
-  fmt.Println(resource.Allocated, resource.Stream)
   mixin.CommonResponse(context, resource, e)
 }

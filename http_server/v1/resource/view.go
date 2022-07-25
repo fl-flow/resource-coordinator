@@ -45,3 +45,28 @@ func ResourceDetailView(context *gin.Context) {
   }
   mixin.CommonResponse(context, d, nil)
 }
+
+
+func ResourceAlloc(context *gin.Context){
+  var f ResourceAllocSerializer
+  if ok := mixin.CheckJSON(context, &f); !ok {
+    return
+  }
+  d, ok1 := resourcepool.ResourceNodeMap[f.ResourceName]
+  if !ok1 {
+    mixin.CommonResponse(context, "error", &error.Error{
+      Code: 11000010,
+      Hits: f.ResourceName,
+    })
+    return
+  }
+  node, uid, e := d.ResourceAlloc(f.Value)
+  mixin.CommonResponse(
+    context,
+    map[string]string{
+      "node": node,
+      "uid": uid,
+    },
+    e,
+  )
+}
