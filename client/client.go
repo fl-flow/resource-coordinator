@@ -2,6 +2,10 @@ package client
 
 import (
   "fmt"
+  "log"
+  "sync"
+  "encoding/json"
+  "golang.org/x/net/websocket"
 )
 
 
@@ -145,4 +149,79 @@ func (r ResourceType) Alloc (value uint) (string, string, bool) {
   }
   data := ret.Data.(map[string]interface{})
   return data["node"].(string), data["uid"].(string), true
+}
+
+
+func (r ResourceType) Allocating (
+  value uint,
+  node *string,
+  uid *string,
+  argWait *sync.WaitGroup,
+  wait *sync.WaitGroup,
+) {
+  // TODO: schema
+  ws, err := websocket.Dial(
+    fmt.Sprintf(
+      "ws://%v:%v/api/v1/resource/alloc/ws/",
+      r.Client.IP,
+      r.Client.Port,
+    ),
+    "",
+    fmt.Sprintf(
+      "%v://%v:%v",
+      r.Client.Schema,
+      r.Client.IP,
+      r.Client.Port,
+    ),
+  )
+  message := []byte(fmt.Sprintf(`{"resource_name":"%v", "value": %v}`, r.ResourceName, value))
+  _, err = ws.Write(message)
+  if err != nil {
+    log.Fatal(err)
+  }
+  fmt.Printf("Send: %s\n", message)
+  var msg = make([]byte, 512)
+  m, err := ws.Read(msg)
+  if err != nil {
+    log.Fatal(err)
+  }
+  fmt.Printf("Receive: %s\n", msg[:m])
+  // if msg[:m] != []byte("true") {
+  //   log.Fatal("lalalalala")
+  // }
+  var ret map[string]string
+  if err := json.Unmarshal(msg[:m], &ret); err != nil {
+    log.Fatal("lalalalala111")
+  }
+  *node = ret["node"]
+  *uid = ret["uid"]
+  argWait.Done()
+  wait.Wait()
+  ws.Close()
+}
+
+
+func (n ResourceType) ResourceNodeDown(node string, uid string) bool {
+  url := fmt.Sprintf(
+    "%v://%v:%v/api/v1/resource-node/down/",
+    n.Client.Schema,
+    n.Client.IP,
+    n.Client.Port,
+  )
+  _, e := fetch(
+    "PATCH",
+    url,
+    []byte(
+      fmt.Sprintf(
+        `{"resource_name":"%v","node":"%v","uid":"%v"}`,
+        n.ResourceName,
+        node,
+        uid,
+      ),
+    ),
+  )
+  if e != nil {
+    return false
+  }
+  return true
 }
